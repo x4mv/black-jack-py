@@ -1,18 +1,17 @@
 class Player():
 
-    def __init__(self, name, amount):
+    def __init__(self, name, bet):
+        
         self.name = name
-        self.amount = amount
-        self.cards_in_deck = []
+        self.bet = bet
+        self.amount = 1000
         self.points = 0
+        self.cartas = []
     
+    def __str__(self):
+        
+        return f'El jugador {self.name} dispone de {self.amount}'
 
-    def add_amount(self, win):
 
-        self.amount += win
+
     
-    def sub_amount(self, loss):
-        self.amount -= loss
-
-    def __str__(self) -> str:
-        return f'El jugador {self.name} dispone de {self.amount} de saldo'    

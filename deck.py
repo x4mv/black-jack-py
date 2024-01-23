@@ -18,14 +18,10 @@ class Deck():
     def deal_one(self):
         return self.cards.pop(0)
     
+    
+    
     def __str__(self) -> str:
         return f' {self.cards[0]} has a value of {self.cards[0].value}'
 
     
-
-
-new_deck = Deck()
-new_deck.create_deck()
-#new_deck.shuffle()
-print(f' {new_deck.cards[0]} value -> {new_deck.cards[0].value}')
 

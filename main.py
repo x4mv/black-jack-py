@@ -1,64 +1,92 @@
-import player
-import deck
-import dealer
-import cards
+from registrarUsuario import registrar_usuario
+from player import Player
+from casa import Dealer
+from deck import Deck
+from checkWin import who_wins
+from hitPass import hit_pass
 
-name = input('Ingrese el su nombre: ')
-saldo = int(input('Ingrese el saldo a apostar'))
 
-flag_end_game = True
-flag_hit = True
 
-player = player.Player(name, saldo)
-dealer = dealer.Dealer()
+# Preguntar el nombre del jugador
+nombre, apuesta = registrar_usuario()
 
-while flag_end_game:
+#Crear las instancias del dealer y del jugador
+player = Player(nombre, apuesta)
+dealer = Dealer()
 
-    #validaciones si el jugador no tiene saldo
-    if player.amount <= 0 : 
-        break
-    
-    #empezamos el juego creando un nuevo escritorio
-    #instanciamos la clase deck
-    new_deck = deck.Deck()
-    #creamos el escritorio
+#creando las banderas del juego, y del hit
+flag_game_on = True
+flag_hit_player_on = True
+flag_hit_dealer_on = True
+ronda = 0
+
+#empezar el juego
+while flag_game_on: 
+
+    #Creamos la mesa 
+    new_deck = Deck()
+    #Creamos las cartas
     new_deck.create_deck()
-    #mezclamos las cartas
+    #Mezclamos las cartas
     new_deck.shuffle()
 
-    #repartimos las cartas al dealer
-    dealer.hidden.append(new_deck.deal_one())
-    dealer.show.append(new_deck.deal_one())
+    #Repartimos las 2 cartas al dealer
+    #add al hidden
+    dealer.add_hidden(new_deck.deal_one())
+    #add al show
+    dealer.add_show(new_deck.deal_one())
+    #sumamos los puntos del dealer hasta ahora
     dealer.points += dealer.show[0].value
+    #mostramos los puntos del dealer hasta ahora 
+    print(f'Puntos de la casa: {dealer.points}') 
 
-    #repartimos las carta al jugador 
-    player.cards_in_deck.append(new_deck.deal_one())
-    player.cards_in_deck.append(new_deck.deal_one())
-    player.points += player.cards_in_deck[0].values + player.cards_in_deck[1]
+    #Repartimos 2 cartas al jugador
+    #add al jugador
+    player.cartas.append(new_deck.deal_one())
+    #sumamos el valor de la carta a los puntos del jugador 
+    player.points += player.cartas[len(player.cartas)-1].value
+    #add al show
+    player.cartas.append(new_deck.deal_one())
+    #sumamos el valor de la carta a los puntos del jugador 
+    player.points += player.cartas[len(player.cartas)-1].value
+    #mostramos los puntos del jugador hasta ahora 
+    print(f'Puntos de {player.name}: {player.points}') 
+    estado, msg = who_wins(player, dealer, apuesta, ronda)
+    ronda += 1
+    if estado:
+        flag_game_on = False
+        break
+    desicion = hit_pass()
+    while flag_hit_player_on:
+        if desicion == 2:
+            flag_hit_player_on = False
+            break
+        else:
+            player.cartas.append(new_deck.deal_one())
+            player.points += player.cartas[len(player.cartas)-1].value
+            estado, msg = who_wins(player, dealer, apuesta, ronda)
+            if estado:
+                flag_game_on = False 
+                flag_hit_player_on = False
+                break 
+        print(f'Puntos de la casa: {dealer.points}')
+        print(f'Puntos de {player.name}: {player.points}') 
+        desicion = hit_pass()
+    while flag_hit_dealer_on:
+        dealer.points += dealer.hidden[0].value
+        while dealer.points < 17: 
+            #add al show
+            dealer.add_show(new_deck.deal_one())
+            #sumamos los puntos del dealer hasta ahora
+            dealer.points += dealer.show[len(dealer.show)-1].value
+            print(f'Puntos de la casa: {dealer.points}')
+        flag_hit_dealer_on = False
+        break
 
-    
-    #mostrar los valores de las cartas
-    print(f'El dealer tiene: {dealer.show[0]} {dealer.points}')
-
-    #mostrar las cartas del jugador
-    print(f'el jugador tiene: {player.cards_in_deck[0]} \n'
-          f'{player.cards_in_deck[1]}'
-          )
-
-    action = int(input('1: HIT, 2:PASS'))
-
-    while flag_hit:
-
-        if action == 2:
-            flag_hit = False
-
-            dealer.points += dealer.hidden[0].value
-
-            if dealer > 21 :
-                print('El dealer fue bust!!! ')
-                
-
-
-
-
+    estado, msg = who_wins(player, dealer, apuesta, ronda)
+    if estado:
+        flag_game_on = False
+        break
+print(f'Puntos de la casa: {dealer.points}')
+print(f'Puntos de {player.name}: {player.points}') 
 
