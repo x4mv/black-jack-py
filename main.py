@@ -86,7 +86,18 @@ while flag_game_on:
     estado, msg = who_wins(player, dealer, apuesta, ronda)
     if estado:
         flag_game_on = False
-        break
-print(f'Puntos de la casa: {dealer.points}')
-print(f'Puntos de {player.name}: {player.points}') 
+        
+    again = int(input('Jugar otra vez? 1: si 2: NO \n'))
+    if again == 1: 
+        flag_game_on = True
+        player.empty_points() 
+        player.empty_cartas()
+        dealer.empty_hidden()
+        dealer.empty_show()
+        dealer.empty_points()
+        ronda = 0
+    else: 
+        flag_game_on = False
+print(f'Puntos de la casa: {dealer.points}\n la casa se va con: {dealer.amount}')
+print(f'Puntos de {player.name}: {player.points} \n el jugador se va con: {player.amount}') 
 
